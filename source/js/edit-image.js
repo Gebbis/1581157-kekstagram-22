@@ -54,19 +54,28 @@ const onEscDown = function (evt) {
 }
 
 const createEffectSlider = function () {
-  noUiSlider.create(effectLevelSlider, {
-    range: {
-      min: 0,
-      max: 1,
-    },
-    start: 0,
-    step: 0.1,
-    connect: 'lower',
-  });
+  if (!effectLevelSlider.noUiSlider) {
+    noUiSlider.create(effectLevelSlider, {
+      range: {
+        min: 0,
+        max: 1,
+      },
+      start: 0,
+      step: 0.1,
+      connect: 'lower',
+    });
 
-  effectLevelSlider.noUiSlider.on('update', (_, handle, unencoded) => {
-    effectLevelValue.value = unencoded[handle];
-  });
+    effectLevelSlider.noUiSlider.on('update', (_, handle, unencoded) => {
+      effectLevelValue.value = unencoded[handle];
+    });
+  }
+}
+
+const destroyEffectSlider = function () {
+  if (effectLevelSlider.noUiSlider) {
+    effectLevelSlider.noUiSlider.reset();
+    effectLevelSlider.noUiSlider.destroy();
+  }
 }
 
 const setEffectsValues = function (effectClass, minRange, maxRange, startRange, stepRange) {
@@ -90,17 +99,16 @@ const setImageEffects = function () {
     effectsRadio[i].addEventListener('click', () => {
 
       if (noneEffectFilter.checked) {
-        effectLevelSlider.style.display = 'none';
-        effectLevelSlider.noUiSlider.reset();
+        destroyEffectSlider();
       } else {
-        effectLevelSlider.style.display = 'block';
+        createEffectSlider();
       }
 
       if (chromeEffectFilter.checked) {
         const EFFECT_CLASS = 'effects__preview--chrome';
         const MIN_RANGE = 0;
         const MAX_RANGE = 1;
-        const START_RANGE = 0;
+        const START_RANGE = 1;
         const STEP_RANGE = 0.1;
 
         setEffectsValues(EFFECT_CLASS, MIN_RANGE, MAX_RANGE, START_RANGE, STEP_RANGE);
@@ -117,7 +125,7 @@ const setImageEffects = function () {
         const EFFECT_CLASS = 'effects__preview--sepia';
         const MIN_RANGE = 0;
         const MAX_RANGE = 1;
-        const START_RANGE = 0;
+        const START_RANGE = 1;
         const STEP_RANGE = 0.1;
 
         setEffectsValues(EFFECT_CLASS, MIN_RANGE, MAX_RANGE, START_RANGE, STEP_RANGE);
@@ -134,7 +142,7 @@ const setImageEffects = function () {
         const EFFECT_CLASS = 'effects__preview--marvin';
         const MIN_RANGE = 0;
         const MAX_RANGE = 100;
-        const START_RANGE = 0;
+        const START_RANGE = 100;
         const STEP_RANGE = 1;
 
         setEffectsValues(EFFECT_CLASS, MIN_RANGE, MAX_RANGE, START_RANGE, STEP_RANGE);
@@ -150,7 +158,7 @@ const setImageEffects = function () {
         const EFFECT_CLASS = 'effects__preview--phobos';
         const MIN_RANGE = 0;
         const MAX_RANGE = 3;
-        const START_RANGE = 0;
+        const START_RANGE = 3;
         const STEP_RANGE = 0.1;
 
         setEffectsValues(EFFECT_CLASS, MIN_RANGE, MAX_RANGE, START_RANGE, STEP_RANGE);
@@ -167,7 +175,7 @@ const setImageEffects = function () {
         const EFFECT_CLASS = 'effects__preview--heat';
         const MIN_RANGE = 1;
         const MAX_RANGE = 3;
-        const START_RANGE = 0;
+        const START_RANGE = 3;
         const STEP_RANGE = 0.1;
 
         setEffectsValues(EFFECT_CLASS, MIN_RANGE, MAX_RANGE, START_RANGE, STEP_RANGE);
@@ -188,6 +196,7 @@ const closeimageEditing = function (evt) {
   htmlBody.classList.remove('modal-open');
   uploadClose.removeEventListener('click', closeimageEditing);
   document.removeEventListener('keydown', onEscDown);
+  imageUploadFrom.removeEventListener('submit', onFormSubmit);
   uploadFile.value = '';
   clearFormData();
 }
@@ -197,20 +206,24 @@ const addTransformScale = function (element) {
   element.style.transform = 'scale(' + transofrmScaleValue + ')';
 }
 
-const clearFormData = function () {
-  noneEffectFilter.checked = true;
-  effectLevelSlider.style.display = 'none';
-  effectLevelSlider.noUiSlider.reset();
-  hashtagInput.value = '';
-  commentInput.value = '';
+const clearScaleControl = function () {
+  scaleControl.value = 100;
+  addTransformScale(imgUploadPreviewImage);
+  scaleControl.value += '%';
 }
 
-const onFormSubmit = function () {
-  imageUploadFrom.addEventListener('submit', (evt) => {
-    evt.preventDefault();
-    sendData(showSuccessPopup, showErrorPopup, new FormData(evt.target));
-    clearFormData();
-  })
+const clearFormData = function () {
+  noneEffectFilter.checked = true;
+  hashtagInput.value = '';
+  commentInput.value = '';
+  clearScaleControl();
+  destroyEffectSlider();
+}
+
+const onFormSubmit = function (evt) {
+  evt.preventDefault();
+  sendData(showSuccessPopup, showErrorPopup, new FormData(evt.target));
+  closeimageEditing(evt);
 }
 
 uploadFile.addEventListener('change', () => {
@@ -218,11 +231,10 @@ uploadFile.addEventListener('change', () => {
   htmlBody.classList.add('modal-open');
   uploadClose.addEventListener('click', closeimageEditing);
   document.addEventListener('keydown', onEscDown);
-  createEffectSlider();
   setImageEffects();
   checkCommentInputValues();
   checkHashtagInputValues();
-  onFormSubmit();
+  imageUploadFrom.addEventListener('submit', onFormSubmit);
 })
 
 scaleControlSmaller.addEventListener('click', (evt) => {

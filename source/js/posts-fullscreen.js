@@ -1,20 +1,13 @@
 import {
-  picturesList
-} from './fill-posts.js';
-
-import {
   isEscEvent,
   htmlBody
 } from './util.js'
-
-import {
-  getData
-} from './api.js'
 
 const bigPost = document.querySelector('.big-picture');
 const commentsLoader = bigPost.querySelector('.comments-loader');
 const closeBigPostButton = bigPost.querySelector('.big-picture__cancel');
 const commentsList = document.querySelector('.social__comments');
+const visibleCommentsCount = document.querySelector('.social__visible-comment-count');
 const commentTemplate = document.querySelector('#social__comment')
   .content
   .querySelector('.social__comment');
@@ -57,21 +50,33 @@ const clearCommentsList = function () {
 
 const showHiddenComments = function (evt) {
   evt.preventDefault();
-  const hiddenComments = commentsList.querySelectorAll('.hidden');
+  const socialCommentsList = commentsList.querySelectorAll('.social__comment');
+  const hiddenCommentsList = commentsList.querySelectorAll('.hidden');
   let maxHiddenCommentIndex = 5;
+  let visibleCommentsCountValue;
+  let hiddenCommentsLength = hiddenCommentsList.length;
 
-  if (hiddenComments.length <= maxHiddenCommentIndex) {
+  if (hiddenCommentsList.length <= maxHiddenCommentIndex) {
     commentsLoader.classList.add('hidden');
-    maxHiddenCommentIndex = hiddenComments.length;
+    maxHiddenCommentIndex = hiddenCommentsList.length;
   } else {
     commentsLoader.classList.remove('hidden');
   }
 
-  hiddenComments.forEach((comment, i) => {
+  hiddenCommentsList.forEach((comment, i) => {
     if (i < maxHiddenCommentIndex) {
       comment.classList.remove('hidden');
+      hiddenCommentsLength--;
     }
   })
+
+  if (socialCommentsList.length < 5) {
+    visibleCommentsCountValue = socialCommentsList.length;
+  } else {
+    visibleCommentsCountValue = socialCommentsList.length - hiddenCommentsLength;
+  }
+
+  visibleCommentsCount.textContent = visibleCommentsCountValue;
 }
 
 const onEscDown = function (evt) {
@@ -90,25 +95,20 @@ const closeBigPost = function (evt) {
   commentsLoader.removeEventListener('click', showHiddenComments);
 }
 
-const openBigPost = function (commentsArray) {
-  const postsElements = picturesList.querySelectorAll('.picture');
-
-  for (let i = 0; i < postsElements.length; i++) {
-    postsElements[i].addEventListener('click', (evt) => {
-      evt.preventDefault();
-      bigPost.classList.remove('hidden');
-      htmlBody.classList.add('modal-open');
-      closeBigPostButton.addEventListener('click', closeBigPost);
-      document.addEventListener('keydown', onEscDown);
-      createBigPost(commentsArray[i]);
-      showHiddenComments(evt);
-      commentsLoader.addEventListener('click', showHiddenComments);
-    });
-  }
+const openBigPost = function (picture, pictureData) {
+  picture.addEventListener('click', (evt) => {
+    evt.preventDefault();
+    bigPost.classList.remove('hidden');
+    htmlBody.classList.add('modal-open');
+    closeBigPostButton.addEventListener('click', closeBigPost);
+    document.addEventListener('keydown', onEscDown);
+    createBigPost(pictureData);
+    showHiddenComments(evt);
+    commentsLoader.addEventListener('click', showHiddenComments);
+  })
 };
 
-getData(openBigPost);
-
 export {
-  onEscDown
+  onEscDown,
+  openBigPost
 }

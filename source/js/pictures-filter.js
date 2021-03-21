@@ -34,8 +34,15 @@ const sortPictures = function (pictureA, pictureB) {
   return commentB - commentA;
 }
 
+const changeToFilterActive = function (pressedButton) {
+  const activeFilterButton = imageFilters.querySelector('.img-filters__button--active');
+  activeFilterButton.classList.remove('img-filters__button--active');
+  pressedButton.classList.add('img-filters__button--active');
+}
+
 const filterDefaultComments = function (postsArray, cb) {
   filterDefaultButton.addEventListener('click', () => {
+    changeToFilterActive(filterDefaultButton);
     cleanPicturesList();
     cb(postsArray);
   })
@@ -43,6 +50,7 @@ const filterDefaultComments = function (postsArray, cb) {
 
 const filterRandomComments = function (postsArray, cb) {
   filterRandomButton.addEventListener('click', () => {
+    changeToFilterActive(filterRandomButton);
     const commentsFilteredList = postsArray
       .slice()
       .sort(() => Math.random() - 0.5)
@@ -55,6 +63,7 @@ const filterRandomComments = function (postsArray, cb) {
 
 const filterDiscussedComments = function (postsArray, cb) {
   filterDiscussedButton.addEventListener('click', () => {
+    changeToFilterActive(filterDiscussedButton);
     const commentsFilteredList = postsArray
       .slice()
       .sort(sortPictures);
