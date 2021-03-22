@@ -1,3 +1,7 @@
+import {
+  onEscDown
+} from './edit-image.js'
+
 const htmlMain = document.querySelector('main');
 
 const showSuccessPopup = function () {
@@ -16,11 +20,12 @@ const showSuccessPopup = function () {
   })
 
   document.addEventListener('click', (evt) => {
-    if (evt.target.classList.contains != 'success') {
+    if (evt.target.classList.contains !== 'success') {
       successPopup.remove();
     }
   })
 
+  document.addEventListener('keydown', onEscDown);
   successPopupFragment.appendChild(successPopup);
   htmlMain.appendChild(successPopupFragment);
 }
@@ -41,11 +46,12 @@ const showErrorPopup = function () {
   })
 
   document.addEventListener('click', (evt) => {
-    if (evt.target.classList.contains != 'error') {
+    if (evt.target.classList.contains !== 'error') {
       errorPopup.remove();
     }
   })
 
+  document.addEventListener('keydown', onEscDown);
   errorPopupFragment.appendChild(errorPopup);
   htmlMain.appendChild(errorPopupFragment);
 }

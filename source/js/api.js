@@ -2,8 +2,11 @@ import {
   showAlertPopup
 } from './util.js'
 
+const GET_DATA_URL = 'https://22.javascript.pages.academy/kekstagram/data';
+const SEND_DATA_URL = 'https://22.javascript.pages.academy/kekstagram';
+
 const getData = function (onSuccess) {
-  fetch('https://22.javascript.pages.academy/kekstagram/data')
+  fetch(GET_DATA_URL)
     .then((response) => response.json())
     .then((comments) => {
       onSuccess(comments);
@@ -14,12 +17,10 @@ const getData = function (onSuccess) {
 }
 
 const sendData = function (onSuccess, onFail, body) {
-  fetch(
-    'https://22.javascript.pages.academy/kekstagram', {
-      method: 'POST',
-      body,
-    },
-  ).then((response) => {
+  fetch(SEND_DATA_URL, {
+    method: 'POST',
+    body,
+  }).then((response) => {
     if (response.ok) {
       onSuccess();
     } else {

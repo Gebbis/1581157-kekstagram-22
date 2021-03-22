@@ -10,9 +10,6 @@ import {
 } from './fill-posts.js'
 
 const imageFilters = document.querySelector('.img-filters');
-const filterDefaultButton = imageFilters.querySelector('#filter-default');
-const filterRandomButton = imageFilters.querySelector('#filter-random');
-const filterDiscussedButton = imageFilters.querySelector('#filter-discussed');
 const MAX_RANDOM_COMMENT = 10;
 const FILTER_DELAY = 500;
 
@@ -40,43 +37,40 @@ const changeToFilterActive = function (pressedButton) {
   pressedButton.classList.add('img-filters__button--active');
 }
 
-const filterDefaultComments = function (postsArray, cb) {
-  filterDefaultButton.addEventListener('click', () => {
-    changeToFilterActive(filterDefaultButton);
-    cleanPicturesList();
-    cb(postsArray);
-  })
-}
+const filterPictures = function (evt, postsArray) {
+  changeToFilterActive(evt.target);
 
-const filterRandomComments = function (postsArray, cb) {
-  filterRandomButton.addEventListener('click', () => {
-    changeToFilterActive(filterRandomButton);
+  if (evt.target.matches('#filter-default')) {
+    cleanPicturesList();
+    fillPosts(postsArray);
+  }
+
+  if (evt.target.matches('#filter-random')) {
     const commentsFilteredList = postsArray
       .slice()
       .sort(() => Math.random() - 0.5)
       .slice(0, MAX_RANDOM_COMMENT);
 
     cleanPicturesList();
-    cb(commentsFilteredList);
-  })
-}
+    fillPosts(commentsFilteredList);
+  }
 
-const filterDiscussedComments = function (postsArray, cb) {
-  filterDiscussedButton.addEventListener('click', () => {
-    changeToFilterActive(filterDiscussedButton);
+  if (evt.target.matches('#filter-discussed')) {
     const commentsFilteredList = postsArray
       .slice()
       .sort(sortPictures);
 
     cleanPicturesList();
-    cb(commentsFilteredList);
-  })
+    fillPosts(commentsFilteredList);
+  }
 }
 
 getData((posts) => {
   fillPosts(posts);
   imageFilters.classList.remove('img-filters--inactive');
-  filterDefaultComments(posts, _.debounce(fillPosts, FILTER_DELAY));
-  filterRandomComments(posts, _.debounce(fillPosts, FILTER_DELAY));
-  filterDiscussedComments(posts, _.debounce(fillPosts, FILTER_DELAY));
+  document.querySelectorAll('.img-filters__button').forEach((btn) => {
+    btn.addEventListener('click', _.debounce((evt) => {
+      filterPictures(evt, posts);
+    }, FILTER_DELAY));
+  })
 });

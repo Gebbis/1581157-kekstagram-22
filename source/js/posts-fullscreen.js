@@ -11,6 +11,7 @@ const visibleCommentsCount = document.querySelector('.social__visible-comment-co
 const commentTemplate = document.querySelector('#social__comment')
   .content
   .querySelector('.social__comment');
+let MAX_HIDDEN_COMMENT_INDEX;
 
 const createBigPost = function (element) {
   const commentsListFragment = document.createDocumentFragment();
@@ -52,25 +53,25 @@ const showHiddenComments = function (evt) {
   evt.preventDefault();
   const socialCommentsList = commentsList.querySelectorAll('.social__comment');
   const hiddenCommentsList = commentsList.querySelectorAll('.hidden');
-  let maxHiddenCommentIndex = 5;
   let visibleCommentsCountValue;
   let hiddenCommentsLength = hiddenCommentsList.length;
+  MAX_HIDDEN_COMMENT_INDEX = 5;
 
-  if (hiddenCommentsList.length <= maxHiddenCommentIndex) {
+  if (hiddenCommentsList.length <= MAX_HIDDEN_COMMENT_INDEX) {
     commentsLoader.classList.add('hidden');
-    maxHiddenCommentIndex = hiddenCommentsList.length;
+    MAX_HIDDEN_COMMENT_INDEX = hiddenCommentsList.length;
   } else {
     commentsLoader.classList.remove('hidden');
   }
 
   hiddenCommentsList.forEach((comment, i) => {
-    if (i < maxHiddenCommentIndex) {
+    if (i < MAX_HIDDEN_COMMENT_INDEX) {
       comment.classList.remove('hidden');
       hiddenCommentsLength--;
     }
   })
 
-  if (socialCommentsList.length < 5) {
+  if (socialCommentsList.length <= MAX_HIDDEN_COMMENT_INDEX) {
     visibleCommentsCountValue = socialCommentsList.length;
   } else {
     visibleCommentsCountValue = socialCommentsList.length - hiddenCommentsLength;
