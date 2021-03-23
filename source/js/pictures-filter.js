@@ -68,9 +68,11 @@ const filterPictures = function (evt, postsArray) {
 getData((posts) => {
   fillPosts(posts);
   imageFilters.classList.remove('img-filters--inactive');
+  const filterClickListener = _.debounce(function (evt) {
+    filterPictures(evt, posts);
+  }, FILTER_DELAY)
+
   document.querySelectorAll('.img-filters__button').forEach((btn) => {
-    btn.addEventListener('click', _.debounce((evt) => {
-      filterPictures(evt, posts);
-    }, FILTER_DELAY));
+    btn.addEventListener('click', filterClickListener);
   })
 });
